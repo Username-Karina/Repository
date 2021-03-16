@@ -13,9 +13,10 @@ public class UserDaoJDBCImpl implements UserDao {
     public UserDaoJDBCImpl() {
     }
 
-    public void createUsersTable() {
+    public void createUsersTable() throws SQLException {
         Connection con = null;
         Statement statement = null;
+        Savepoint savepoint = null;
 
         String createTable = "CREATE TABLE USERS("
                 + "ID INT AUTO_INCREMENT, "
@@ -25,11 +26,16 @@ public class UserDaoJDBCImpl implements UserDao {
                 + ")";
         try{
             con = Util.connect();
+            con.setAutoCommit(false);
+            savepoint = con.setSavepoint("One");
             statement = con.createStatement();
             statement.execute(createTable);
             System.out.println("Table create");
+            con.commit();
+            con.setAutoCommit(true);
         } catch (SQLException e){
             e.printStackTrace();
+            con.rollback(savepoint);
         }finally {
             try{
                 con.close();
@@ -40,18 +46,24 @@ public class UserDaoJDBCImpl implements UserDao {
         }
     }
 
-    public void dropUsersTable() {
+    public void dropUsersTable() throws SQLException {
         Connection con = null;
         Statement statement = null;
+        Savepoint savepoint = null;
 
         String dropTable = "DROP TABLE USERS";
         try{
             con = Util.connect();
+            con.setAutoCommit(false);
+            savepoint = con.setSavepoint("Two");
             statement = con.createStatement();
             statement.execute(dropTable);
             System.out.println("Table delete");
+            con.commit();
+            con.setAutoCommit(true);
         }catch (SQLException e){
             System.out.println(e.getMessage());
+            con.rollback(savepoint);
         }finally {
             try{
                 con.close();
@@ -75,7 +87,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try{
             con = Util.connect();
             con.setAutoCommit(false);
-            savepoint = con.setSavepoint("One");
+            savepoint = con.setSavepoint("Three");
 
             statement = con.prepareStatement(save);
             statement.setString(1,name);
@@ -85,6 +97,7 @@ public class UserDaoJDBCImpl implements UserDao {
             System.out.println("User " + name + " " + lastName + " " + age + " add.");
 
             con.commit();
+            con.setAutoCommit(true);
 
         }catch (SQLException e){
             System.out.println(e.getMessage());
@@ -111,13 +124,14 @@ public class UserDaoJDBCImpl implements UserDao {
         try{
             con = Util.connect();
             con.setAutoCommit(false);
-            savepoint = con.setSavepoint("Two");
+            savepoint = con.setSavepoint("Four");
 
             statement = con.prepareStatement(remove);
             statement.setLong(1,id);
             statement.execute();
 
             con.commit();
+            con.setAutoCommit(true);
         }catch (SQLException e){
             System.out.println(e.getMessage());
             con.rollback(savepoint);
@@ -144,7 +158,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try{
             con = Util.connect();
             con.setAutoCommit(false);
-            savepoint = con.setSavepoint("Three");
+            savepoint = con.setSavepoint("Five");
 
             statement = con.createStatement();
             ResultSet rs = statement.executeQuery(getAll);
@@ -156,6 +170,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 users.add(user);
             }
             con.commit();
+            con.setAutoCommit(true);
         }catch (SQLException e){
             System.out.println(e.getMessage());
             con.rollback(savepoint);
@@ -170,19 +185,25 @@ public class UserDaoJDBCImpl implements UserDao {
         return users;
     }
 
-    public void cleanUsersTable() {
+    public void cleanUsersTable() throws SQLException {
         Connection con = null;
         Statement statement = null;
+        Savepoint savepoint = null;
 
         String cleanTable = "TRUNCATE TABLE USERS";
         try{
             con = Util.connect();
+            con.setAutoCommit(false);
+            savepoint = con.setSavepoint("Six");
             statement = con.createStatement();
             statement.execute(cleanTable);
             System.out.println("Table clean");
+            con.commit();
+            con.setAutoCommit(true);
 
         }catch (SQLException e){
             System.out.println(e.getMessage());
+            con.rollback(savepoint);
         }finally {
             try{
                 con.close();

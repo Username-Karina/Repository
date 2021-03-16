@@ -10,11 +10,11 @@ public class UserServiceImpl implements UserService {
 
     private final UserDaoJDBCImpl userDaoJDBC = new UserDaoJDBCImpl();
 
-    public void createUsersTable() {
+    public void createUsersTable() throws SQLException {
         userDaoJDBC.createUsersTable();
     }
 
-    public void dropUsersTable() {
+    public void dropUsersTable() throws SQLException {
         userDaoJDBC.dropUsersTable();
     }
 
@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
         return userDaoJDBC.getAllUsers();
     }
 
-    public void cleanUsersTable() {
+    public void cleanUsersTable() throws SQLException {
         userDaoJDBC.cleanUsersTable();
     }
 }
